@@ -50,6 +50,7 @@ namespace FTPbox
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
             if (!DLLsExist)
             {
                 MessageBox.Show("The required DLL files to run this program are missing. Please make sure all the needed files are in the installation folder and then run the application. If you cannot find these files, just reinstall FTPbox.", "FTPbox - Missing Resources", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -73,8 +74,12 @@ namespace FTPbox
         /// </summary>
         private static bool DLLsExist
         {
+
             get
             {
+#if DEBUG
+                return true;
+#endif 
                 string[] dlls = { "FTPboxLib.dll", "System.Net.FtpClient.dll", "Renci.SshNet.dll", 
                                     "Ionic.Zip.Reduced.dll", "Newtonsoft.Json.dll" };
 
@@ -103,7 +108,7 @@ namespace FTPbox
             }
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Any file paths in the arguement list?
@@ -132,7 +137,7 @@ namespace FTPbox
             return true;
         }
 
-        #region Named-Pipe Client
+            #region Named-Pipe Client
 
         /// <summary>
         /// Connect to our named-pipe server, send arguements and close current process
@@ -191,7 +196,7 @@ namespace FTPbox
             }
         }
 
-        #endregion
+            #endregion
 
         /// <summary>
         /// Remove the FTPbox context menu (delete the registry files). 

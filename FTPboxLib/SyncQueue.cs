@@ -12,6 +12,7 @@
 
 // #define __MonoCs__
 
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +26,7 @@ namespace FTPboxLib
 {
     public class SyncQueue : List<SyncQueueItem>
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
         private readonly List<SyncQueueItem> _completedList = new List<SyncQueueItem>();
         private Thread _rcThread;
         // Timer used to schedule automatic syncing according to user's preferences
@@ -34,6 +36,7 @@ namespace FTPboxLib
 
         public SyncQueue(AccountController account)
         {
+            logger.Debug("In SyncQueue Constructor ");
             _controller = account;
             account.WebInterface.InterfaceRemoved += (o, e) =>
             {
@@ -46,6 +49,18 @@ namespace FTPboxLib
                 Running = false;
             };
         }
+
+        public void  StartTimer(AccountController account)
+        {
+            logger.Debug("In SyncQueue StartTimer ");
+            if (account.Account.SyncMethod == SyncMethod.Automatic)
+            {
+                logger.Debug("In SyncQueue StartTimer SyncMethod.Automatic ");
+                SetTimer();
+            }
+
+        }
+
 
         #region Methods : Handle the Queue List
 
@@ -133,6 +148,7 @@ namespace FTPboxLib
         /// </summary>
         private void Run()
         {
+            logger.Debug("In SyncQueue Run Method ");
             if (Running) return;
 
             Notifications.ChangeTrayText(MessageType.Syncing);            
@@ -298,9 +314,12 @@ namespace FTPboxLib
         /// </summary>
         private void SetTimer()
         {
+            logger.Debug($"SetTimer called - Frequency in milli seconds  {  1000 * _controller.Account.SyncFrequency}");
             _tSync = new Timer(state => Add(new SyncQueueItem (_controller)
             {
-                Item = new ClientItem
+
+                
+            Item = new ClientItem
                 {
                     FullPath = ".",
                     Name = ".",
@@ -312,6 +331,7 @@ namespace FTPboxLib
                 SyncTo = SyncTo.Local,
                 SkipNotification = true
             }), null, 1000 * _controller.Account.SyncFrequency, 0);
+
         }
 
         #endregion
